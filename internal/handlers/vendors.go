@@ -75,3 +75,26 @@ func (h *VendorHandler) GetVendorByID(ctx *gin.Context) {
 
 	ctx.JSON(200, vendor)
 }
+
+
+
+func (h *VendorHandler) GetNearbyVendors(ctx *gin.Context) {
+	lat, ok := utils.ParseFloat64(ctx, "lat")
+	if !ok {
+		return
+	}
+
+	lng, ok := utils.ParseFloat64(ctx, "lng")
+	if !ok {
+		return
+	}
+
+	vendors, err := h.repository.GetNearbyVendors(ctx, lat, lng, 5)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to get nearby vendors")
+		ctx.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(200, vendors)
+}

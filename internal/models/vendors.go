@@ -17,14 +17,15 @@ type Location struct {
 }
 
 type WaakyeVendor struct {
-	ID             uuid.UUID `json:"id" db:"id"`
-	Name           string    `json:"name" db:"name"`
-	LocationID     uuid.UUID `json:"location_id" db:"location_id"`
-	Location       Location  `json:"location" db:"-"`
-	Description    string    `json:"description" db:"description"`
-	OperatingHours string    `json:"operating_hours" db:"operating_hours"`
-	PhoneNumber    string    `json:"phone_number" db:"phone_number"`
-	IsVerified     bool      `json:"is_verified" db:"is_verified"`
-	CreatedAt      time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at" db:"updated_at"`
+    ID             uuid.UUID `json:"id" db:"id"`
+    Name           string    `json:"name" db:"name"`
+    LocationID     uuid.UUID `json:"location_id" db:"location_id"`
+    Location       Location  `json:"location" db:"-"`
+    Description    string    `json:"description" db:"description"`
+    OperatingHours string    `json:"operating_hours" db:"operating_hours"`
+    PhoneNumber    string    `json:"phone_number" db:"phone_number"`
+    IsVerified     bool      `json:"is_verified" db:"is_verified"`
+    CreatedAt      time.Time `json:"created_at" db:"created_at"`
+    UpdatedAt      time.Time `json:"updated_at" db:"updated_at"`
+    Distance       float64   `json:"distance_km,omitempty" db:"-"`
 }

@@ -15,6 +15,7 @@ type VendorRepository interface {
 	ListVendorsWithPagination(ctx context.Context, page, pageSize int) ([]models.WaakyeVendor, error)
 	CountVendors(ctx context.Context) (int64, error)
 	GetVendorByID(ctx context.Context, id uuid.UUID) (*models.WaakyeVendor, error)
+	GetNearbyVendors(ctx context.Context, latitude, longitude, radius float64) ([]models.WaakyeVendor, error)
 }
 
 type vendorRepository struct {
@@ -168,4 +169,83 @@ func (r *vendorRepository) GetVendorByID(ctx context.Context, id uuid.UUID) (*mo
 	}
 
 	return &vendor, nil
+}
+
+
+
+func (r *vendorRepository) GetNearbyVendors(ctx context.Context, latitude, longitude, radiusKm float64) ([]models.WaakyeVendor, error) {
+    // Convert radius from kilometers to meters
+    radiusMeters := radiusKm * 1000.0
+
+    query := `
+        SELECT 
+            wv.id, 
+            wv.name, 
+            wv.description, 
+            wv.operating_hours, 
+            wv.phone_number, 
+            wv.is_verified, 
+            wv.created_at, 
+            wv.updated_at,
+            l.street_address, 
+            l.city, 
+            l.region, 
+            l.latitude, 
+            l.longitude, 
+            l.landmark,
+            earth_distance(ll_to_earth($1, $2), ll_to_earth(l.latitude, l.longitude)) as distance
+        FROM waakye_vendors wv
+        INNER JOIN locations l ON wv.location_id = l.id
+        WHERE earth_distance(ll_to_earth($1, $2), ll_to_earth(l.latitude, l.longitude)) <= $3
+        ORDER BY distance ASC
+    `
+
+    rows, err := r.db.QueryContext(ctx, query, latitude, longitude, radiusMeters)
+    if err != nil {
+        log.Error().Err(err).
+            Float64("latitude", latitude).
+            Float64("longitude", longitude).
+            Float64("radius_km", radiusKm).
+            Msg("Failed to get nearby vendors")
+        return nil, err
+    }
+    defer rows.Close()
+
+    var vendors []models.WaakyeVendor
+    for rows.Next() {
+        var vendor models.WaakyeVendor
+        var distance float64  // Add distance field
+        err := rows.Scan(
+            &vendor.ID,
+            &vendor.Name,
+            &vendor.Description,
+            &vendor.OperatingHours,
+            &vendor.PhoneNumber,
+            &vendor.IsVerified,
+            &vendor.CreatedAt,
+            &vendor.UpdatedAt,
+            &vendor.Location.StreetAddress,
+            &vendor.Location.City,
+            &vendor.Location.Region,
+            &vendor.Location.Latitude,
+            &vendor.Location.Longitude,
+            &vendor.Location.Landmark,
+            &distance,  // Scan the distance
+        )
+        if err != nil {
+            log.Error().Err(err).Msg("Failed to scan vendor")
+            return nil, err
+        }
+        
+        // Convert distance from meters to kilometers and add to vendor
+        vendor.Distance = distance / 1000.0 // Add this field to your WaakyeVendor model
+
+        vendors = append(vendors, vendor)
+    }
+
+    if len(vendors) == 0 {
+        return []models.WaakyeVendor{}, nil
+    }
+
+    return vendors, nil
 }

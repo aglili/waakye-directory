@@ -5,7 +5,7 @@ export $(shell sed 's/=.*//' .env)
 # Variables
 PROJECT_NAME := waakye-directory
 MIGRATION_DIR := migrations
-DB_URL := "postgresql://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSL)"
+DB_URL := "postgresql://$(DB_USER):$(DB_PASSWORD)@localhost:5433/$(DB_NAME)?sslmode=disable"
 DOCKER_COMPOSE := docker-compose
 GO := go
 
