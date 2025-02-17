@@ -240,6 +240,8 @@ func (r *vendorRepository) GetNearbyVendors(ctx context.Context, latitude, longi
         // Convert distance from meters to kilometers and add to vendor
         vendor.Distance = distance / 1000.0 // Add this field to your WaakyeVendor model
 
+		log.Info().Float64("distance", vendor.Distance).Msg("distance")
+
         vendors = append(vendors, vendor)
     }
 
