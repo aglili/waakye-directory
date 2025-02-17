@@ -1,7 +1,6 @@
 package handlers
 
 import (
-
 	"github.com/aglili/waakye-directory/internal/models"
 	"github.com/aglili/waakye-directory/internal/repository/postgres"
 	"github.com/aglili/waakye-directory/internal/utils"
@@ -33,7 +32,7 @@ func (h *VendorHandler) CreateVendor(ctx *gin.Context) {
 	}
 
 	createdMessage := "Vendor created successfully"
-	utils.RespondWithCreated(ctx,createdMessage,vendor)
+	utils.RespondWithCreated(ctx, createdMessage, vendor)
 }
 
 func (h *VendorHandler) ListVendorsWithPagination(ctx *gin.Context) {
@@ -77,8 +76,6 @@ func (h *VendorHandler) GetVendorByID(ctx *gin.Context) {
 	getMessage := "Vendor retrieved successfully"
 	utils.RespondWithOK(ctx, getMessage, vendor)
 }
-
-
 
 func (h *VendorHandler) GetNearbyVendors(ctx *gin.Context) {
 	lat, ok := utils.ParseFloat64(ctx, "lat")

@@ -74,11 +74,11 @@ type PaginationParams struct {
 
 // PaginatedResponse is a generic struct for paginated data
 type PaginatedResponse[T any] struct {
-	Data       []T   `json:"data"`
-	Page       int   `json:"page"`
-	PageSize   int   `json:"page_size"`
-	TotalItems int64 `json:"total_items"`
-	TotalPages int   `json:"total_pages"`
+	Data       []T    `json:"data"`
+	Page       int    `json:"page"`
+	PageSize   int    `json:"page_size"`
+	TotalItems int64  `json:"total_items"`
+	TotalPages int    `json:"total_pages"`
 	Message    string `json:"message"`
 }
 
@@ -135,7 +135,6 @@ func NewPaginatedResponse[T any](data []T, page int, pageSize int, totalItems in
 		Message:    message,
 	}
 }
-
 
 // SendPaginatedResponse sends a paginated response with appropriate status code
 func SendPaginatedResponse[T any](c *gin.Context, data []T, page int, pageSize int, totalItems int64, message string) {

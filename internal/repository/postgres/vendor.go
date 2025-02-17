@@ -171,13 +171,11 @@ func (r *vendorRepository) GetVendorByID(ctx context.Context, id uuid.UUID) (*mo
 	return &vendor, nil
 }
 
-
-
 func (r *vendorRepository) GetNearbyVendors(ctx context.Context, latitude, longitude, radiusKm float64) ([]models.WaakyeVendor, error) {
-    // Convert radius from kilometers to meters
-    radiusMeters := radiusKm * 1000.0
+	// Convert radius from kilometers to meters
+	radiusMeters := radiusKm * 1000.0
 
-    query := `
+	query := `
         SELECT 
             wv.id, 
             wv.name, 
@@ -200,52 +198,52 @@ func (r *vendorRepository) GetNearbyVendors(ctx context.Context, latitude, longi
         ORDER BY distance ASC
     `
 
-    rows, err := r.db.QueryContext(ctx, query, latitude, longitude, radiusMeters)
-    if err != nil {
-        log.Error().Err(err).
-            Float64("latitude", latitude).
-            Float64("longitude", longitude).
-            Float64("radius_km", radiusKm).
-            Msg("Failed to get nearby vendors")
-        return nil, err
-    }
-    defer rows.Close()
+	rows, err := r.db.QueryContext(ctx, query, latitude, longitude, radiusMeters)
+	if err != nil {
+		log.Error().Err(err).
+			Float64("latitude", latitude).
+			Float64("longitude", longitude).
+			Float64("radius_km", radiusKm).
+			Msg("Failed to get nearby vendors")
+		return nil, err
+	}
+	defer rows.Close()
 
-    var vendors []models.WaakyeVendor
-    for rows.Next() {
-        var vendor models.WaakyeVendor
-        var distance float64 
-        err := rows.Scan(
-            &vendor.ID,
-            &vendor.Name,
-            &vendor.Description,
-            &vendor.OperatingHours,
-            &vendor.PhoneNumber,
-            &vendor.IsVerified,
-            &vendor.CreatedAt,
-            &vendor.UpdatedAt,
-            &vendor.Location.StreetAddress,
-            &vendor.Location.City,
-            &vendor.Location.Region,
-            &vendor.Location.Latitude,
-            &vendor.Location.Longitude,
-            &vendor.Location.Landmark,
-            &distance, 
-        )
-        if err != nil {
-            log.Error().Err(err).Msg("Failed to scan vendor")
-            return nil, err
-        }
-        
-        // Convert distance from meters to kilometers and add to vendor
-        vendor.Distance = distance / 1000.0 
+	var vendors []models.WaakyeVendor
+	for rows.Next() {
+		var vendor models.WaakyeVendor
+		var distance float64
+		err := rows.Scan(
+			&vendor.ID,
+			&vendor.Name,
+			&vendor.Description,
+			&vendor.OperatingHours,
+			&vendor.PhoneNumber,
+			&vendor.IsVerified,
+			&vendor.CreatedAt,
+			&vendor.UpdatedAt,
+			&vendor.Location.StreetAddress,
+			&vendor.Location.City,
+			&vendor.Location.Region,
+			&vendor.Location.Latitude,
+			&vendor.Location.Longitude,
+			&vendor.Location.Landmark,
+			&distance,
+		)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to scan vendor")
+			return nil, err
+		}
 
-        vendors = append(vendors, vendor)
-    }
+		// Convert distance from meters to kilometers and add to vendor
+		vendor.Distance = distance / 1000.0
 
-    if len(vendors) == 0 {
-        return []models.WaakyeVendor{}, nil
-    }
+		vendors = append(vendors, vendor)
+	}
 
-    return vendors, nil
+	if len(vendors) == 0 {
+		return []models.WaakyeVendor{}, nil
+	}
+
+	return vendors, nil
 }
