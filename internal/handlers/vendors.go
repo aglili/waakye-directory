@@ -1,11 +1,11 @@
 package handlers
 
 import (
+
 	"github.com/aglili/waakye-directory/internal/models"
 	"github.com/aglili/waakye-directory/internal/repository/postgres"
 	"github.com/aglili/waakye-directory/internal/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/rs/zerolog/log"
 )
 
 type VendorHandler struct {
@@ -21,43 +21,44 @@ func NewVendorHandler(repository postgres.VendorRepository) *VendorHandler {
 func (h *VendorHandler) CreateVendor(ctx *gin.Context) {
 	var vendor models.WaakyeVendor
 	if err := ctx.ShouldBindJSON(&vendor); err != nil {
-		log.Error().Err(err).Msg("Failed to bind JSON")
-		ctx.JSON(400, gin.H{"error": err.Error()})
+		userMessage := "Failed to create vendor"
+		utils.RespondWithBadRequest(ctx, err.Error(), userMessage)
 		return
 	}
 
 	if err := h.repository.CreateVendor(ctx, &vendor); err != nil {
-		log.Error().Err(err).Msg("Failed to create vendor")
-		ctx.JSON(500, gin.H{"error": err.Error()})
+		userMessage := "Failed to create vendor"
+		utils.RespondWithInternalServerError(ctx, err.Error(), userMessage)
 		return
 	}
 
-	ctx.JSON(201, vendor)
+	createdMessage := "Vendor created successfully"
+	utils.RespondWithCreated(ctx,createdMessage,vendor)
 }
 
 func (h *VendorHandler) ListVendorsWithPagination(ctx *gin.Context) {
 	params, err := utils.GetPaginationParams(ctx)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to get pagination parameters")
-		ctx.JSON(400, gin.H{"error": err.Error()})
+		userMessage := "Failed to list vendors with pagination"
+		utils.RespondWithBadRequest(ctx, err.Error(), userMessage)
 		return
 	}
 
 	vendors, err := h.repository.ListVendorsWithPagination(ctx, params.Page, params.PageSize)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to list vendors with pagination")
-		ctx.JSON(500, gin.H{"error": err.Error()})
-		return
+		userMessage := "Failed to list vendors with pagination"
+		utils.RespondWithInternalServerError(ctx, err.Error(), userMessage)
 	}
 
 	totalItems, err := h.repository.CountVendors(ctx)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to count vendors")
-		ctx.JSON(500, gin.H{"error": err.Error()})
+		userMessage := "Failed to list vendors with pagination"
+		utils.RespondWithInternalServerError(ctx, err.Error(), userMessage)
 		return
 	}
 
-	utils.SendPaginatedResponse(ctx, vendors, params.Page, params.PageSize, totalItems)
+	getMessage := "Vendors retrieved successfully"
+	utils.SendPaginatedResponse(ctx, vendors, params.Page, params.PageSize, totalItems, getMessage)
 }
 
 func (h *VendorHandler) GetVendorByID(ctx *gin.Context) {
@@ -68,12 +69,13 @@ func (h *VendorHandler) GetVendorByID(ctx *gin.Context) {
 
 	vendor, err := h.repository.GetVendorByID(ctx, parsedUUID)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to get vendor by ID")
-		ctx.JSON(500, gin.H{"error": err.Error()})
+		userMessage := "Failed to get vendor"
+		utils.RespondWithInternalServerError(ctx, err.Error(), userMessage)
 		return
 	}
 
-	ctx.JSON(200, vendor)
+	getMessage := "Vendor retrieved successfully"
+	utils.RespondWithOK(ctx, getMessage, vendor)
 }
 
 
@@ -91,10 +93,11 @@ func (h *VendorHandler) GetNearbyVendors(ctx *gin.Context) {
 
 	vendors, err := h.repository.GetNearbyVendors(ctx, lat, lng, 5)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to get nearby vendors")
-		ctx.JSON(500, gin.H{"error": err.Error()})
+		userMessage := "Failed to get nearby vendors"
+		utils.RespondWithInternalServerError(ctx, err.Error(), userMessage)
 		return
 	}
 
-	ctx.JSON(200, vendors)
+	getMessage := "Nearby vendors retrieved successfully"
+	utils.RespondWithOK(ctx, getMessage, vendors)
 }
