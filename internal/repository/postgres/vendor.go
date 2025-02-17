@@ -214,7 +214,7 @@ func (r *vendorRepository) GetNearbyVendors(ctx context.Context, latitude, longi
     var vendors []models.WaakyeVendor
     for rows.Next() {
         var vendor models.WaakyeVendor
-        var distance float64  // Add distance field
+        var distance float64 
         err := rows.Scan(
             &vendor.ID,
             &vendor.Name,
@@ -230,7 +230,7 @@ func (r *vendorRepository) GetNearbyVendors(ctx context.Context, latitude, longi
             &vendor.Location.Latitude,
             &vendor.Location.Longitude,
             &vendor.Location.Landmark,
-            &distance,  // Scan the distance
+            &distance, 
         )
         if err != nil {
             log.Error().Err(err).Msg("Failed to scan vendor")
@@ -238,7 +238,7 @@ func (r *vendorRepository) GetNearbyVendors(ctx context.Context, latitude, longi
         }
         
         // Convert distance from meters to kilometers and add to vendor
-        vendor.Distance = distance / 1000.0 // Add this field to your WaakyeVendor model
+        vendor.Distance = distance / 1000.0 
 
         vendors = append(vendors, vendor)
     }
