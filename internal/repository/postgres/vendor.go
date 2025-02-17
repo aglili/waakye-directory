@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/aglili/waakye-directory/internal/models"
+	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 )
 
@@ -13,6 +14,7 @@ type VendorRepository interface {
 	CreateVendor(ctx context.Context, vendor *models.WaakyeVendor) error
 	ListVendorsWithPagination(ctx context.Context, page, pageSize int) ([]models.WaakyeVendor, error)
 	CountVendors(ctx context.Context) (int64, error)
+	GetVendorByID(ctx context.Context,id uuid.UUID) (*models.WaakyeVendor, error)
 }
 
 type vendorRepository struct {
@@ -134,4 +136,39 @@ func (r *vendorRepository) CountVendors(ctx context.Context) (int64, error) {
 
 	return totalItems, nil
 	
+}
+
+
+func (r *vendorRepository) GetVendorByID(ctx context.Context,id uuid.UUID) (*models.WaakyeVendor, error) {
+	query := `
+		SELECT wv.id, wv.name, wv.description, wv.operating_hours, wv.phone_number, wv.is_verified, wv.created_at, wv.updated_at,
+			l.street_address, l.city, l.region, l.latitude, l.longitude, l.landmark
+		FROM waakye_vendors wv
+		INNER JOIN locations l ON wv.location_id = l.id
+		WHERE wv.id = $1
+	`
+
+	var vendor models.WaakyeVendor
+	err := r.db.QueryRowContext(ctx, query, id).Scan(
+		&vendor.ID,
+		&vendor.Name,
+		&vendor.Description,
+		&vendor.OperatingHours,
+		&vendor.PhoneNumber,
+		&vendor.IsVerified,
+		&vendor.CreatedAt,
+		&vendor.UpdatedAt,
+		&vendor.Location.StreetAddress,
+		&vendor.Location.City,
+		&vendor.Location.Region,
+		&vendor.Location.Latitude,
+		&vendor.Location.Longitude,
+		&vendor.Location.Landmark,
+	)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to get vendor by ID")
+		return nil, err
+	}
+
+	return &vendor, nil
 }

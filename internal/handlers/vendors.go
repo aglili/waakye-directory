@@ -62,3 +62,21 @@ func (h *VendorHandler) ListVendorsWithPagination(ctx *gin.Context) {
 
 	utils.SendPaginatedResponse(ctx, vendors, params.Page, params.PageSize, totalItems)
 }
+
+
+
+func (h *VendorHandler) GetVendorByID(ctx *gin.Context) {
+	parsedUUID,ok := utils.ParseUUID(ctx, "id")
+	if !ok {
+		return
+	}
+
+	vendor, err := h.repository.GetVendorByID(ctx, parsedUUID)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to get vendor by ID")
+		ctx.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(200, vendor)
+}
