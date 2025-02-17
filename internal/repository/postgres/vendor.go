@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/aglili/waakye-directory/internal/models"
+	"github.com/rs/zerolog/log"
 )
 
 type VendorRepository interface {
@@ -54,8 +55,10 @@ func (r *vendorRepository) CreateVendor(ctx context.Context, vendor *models.Waak
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
+			log.Error().Err(err).Msg("Failed to create vendor: no rows returned")
 			return errors.New("failed to create vendor: no rows returned")
 		}
+		log.Error().Err(err).Msg("Failed to create vendor")
 		return err
 	}
 
@@ -75,6 +78,7 @@ func (r *vendorRepository) ListVendorsWithPagination(ctx context.Context, page, 
 	offset := (page - 1) * pageSize
 	rows, err := r.db.QueryContext(ctx, query, pageSize, offset)
 	if err != nil {
+		log.Error().Err(err).Msg("Failed to list vendors")
 		return nil, err
 	}
 
@@ -100,6 +104,7 @@ func (r *vendorRepository) ListVendorsWithPagination(ctx context.Context, page, 
 			&vendor.Location.Landmark,
 		)
 		if err != nil {
+			log.Error().Err(err).Msg("Failed to scan vendor")
 			return nil, err
 		}
 
