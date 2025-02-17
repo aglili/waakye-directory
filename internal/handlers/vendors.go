@@ -36,13 +36,12 @@ func (h *VendorHandler) CreateVendor(ctx *gin.Context) {
 }
 
 func (h *VendorHandler) ListVendorsWithPagination(ctx *gin.Context) {
-	params,err := utils.GetPaginationParams(ctx)
+	params, err := utils.GetPaginationParams(ctx)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to get pagination parameters")
 		ctx.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-
 
 	vendors, err := h.repository.ListVendorsWithPagination(ctx, params.Page, params.PageSize)
 	if err != nil {
@@ -51,7 +50,6 @@ func (h *VendorHandler) ListVendorsWithPagination(ctx *gin.Context) {
 		return
 	}
 
-
 	totalItems, err := h.repository.CountVendors(ctx)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to count vendors")
@@ -59,14 +57,11 @@ func (h *VendorHandler) ListVendorsWithPagination(ctx *gin.Context) {
 		return
 	}
 
-
 	utils.SendPaginatedResponse(ctx, vendors, params.Page, params.PageSize, totalItems)
 }
 
-
-
 func (h *VendorHandler) GetVendorByID(ctx *gin.Context) {
-	parsedUUID,ok := utils.ParseUUID(ctx, "id")
+	parsedUUID, ok := utils.ParseUUID(ctx, "id")
 	if !ok {
 		return
 	}

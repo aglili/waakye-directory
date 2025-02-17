@@ -12,14 +12,14 @@ var ErrInvalidUUID = "invalid UUID format"
 // ParseUUID parses and validates a UUID string from the request
 func ParseUUID(c *gin.Context, param string) (uuid.UUID, bool) {
 	id := c.Param(param)
-	
+
 	parsedUUID, err := uuid.Parse(id)
 	if err != nil {
 		log.Error().Err(err).Str("uuid", id).Msg("Failed to parse UUID")
 		c.JSON(400, gin.H{"error": ErrInvalidUUID})
 		return uuid.Nil, false
 	}
-	
+
 	return parsedUUID, true
 }
 

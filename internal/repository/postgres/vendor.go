@@ -14,7 +14,7 @@ type VendorRepository interface {
 	CreateVendor(ctx context.Context, vendor *models.WaakyeVendor) error
 	ListVendorsWithPagination(ctx context.Context, page, pageSize int) ([]models.WaakyeVendor, error)
 	CountVendors(ctx context.Context) (int64, error)
-	GetVendorByID(ctx context.Context,id uuid.UUID) (*models.WaakyeVendor, error)
+	GetVendorByID(ctx context.Context, id uuid.UUID) (*models.WaakyeVendor, error)
 }
 
 type vendorRepository struct {
@@ -122,8 +122,6 @@ func (r *vendorRepository) ListVendorsWithPagination(ctx context.Context, page, 
 
 }
 
-
-
 func (r *vendorRepository) CountVendors(ctx context.Context) (int64, error) {
 	query := `SELECT COUNT(*) FROM waakye_vendors`
 
@@ -135,11 +133,10 @@ func (r *vendorRepository) CountVendors(ctx context.Context) (int64, error) {
 	}
 
 	return totalItems, nil
-	
+
 }
 
-
-func (r *vendorRepository) GetVendorByID(ctx context.Context,id uuid.UUID) (*models.WaakyeVendor, error) {
+func (r *vendorRepository) GetVendorByID(ctx context.Context, id uuid.UUID) (*models.WaakyeVendor, error) {
 	query := `
 		SELECT wv.id, wv.name, wv.description, wv.operating_hours, wv.phone_number, wv.is_verified, wv.created_at, wv.updated_at,
 			l.street_address, l.city, l.region, l.latitude, l.longitude, l.landmark
