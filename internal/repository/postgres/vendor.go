@@ -12,6 +12,7 @@ import (
 type VendorRepository interface {
 	CreateVendor(ctx context.Context, vendor *models.WaakyeVendor) error
 	ListVendorsWithPagination(ctx context.Context, page, pageSize int) ([]models.WaakyeVendor, error)
+	CountVendors(ctx context.Context) (int64, error)
 }
 
 type vendorRepository struct {
@@ -117,4 +118,20 @@ func (r *vendorRepository) ListVendorsWithPagination(ctx context.Context, page, 
 
 	return vendors, nil
 
+}
+
+
+
+func (r *vendorRepository) CountVendors(ctx context.Context) (int64, error) {
+	query := `SELECT COUNT(*) FROM waakye_vendors`
+
+	var totalItems int64
+	err := r.db.QueryRowContext(ctx, query).Scan(&totalItems)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to count vendors")
+		return 0, err
+	}
+
+	return totalItems, nil
+	
 }

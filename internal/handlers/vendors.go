@@ -1,10 +1,9 @@
 package handlers
 
 import (
-	"strconv"
-
 	"github.com/aglili/waakye-directory/internal/models"
 	"github.com/aglili/waakye-directory/internal/repository/postgres"
+	"github.com/aglili/waakye-directory/internal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 )
@@ -37,46 +36,29 @@ func (h *VendorHandler) CreateVendor(ctx *gin.Context) {
 }
 
 func (h *VendorHandler) ListVendorsWithPagination(ctx *gin.Context) {
-	// Get the page and pageSize query parameters as strings
-	pageStr := ctx.DefaultQuery("page", "1")
-	pageSizeStr := ctx.DefaultQuery("page_size", "10")
-
-	// Convert page to an integer
-	page, err := strconv.Atoi(pageStr)
+	params,err := utils.GetPaginationParams(ctx)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to convert 'page' to an integer")
-		ctx.JSON(400, gin.H{"error": "Invalid 'page' value. Must be an integer."})
+		log.Error().Err(err).Msg("Failed to get pagination parameters")
+		ctx.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Convert pageSize to an integer
-	pageSize, err := strconv.Atoi(pageSizeStr)
+
+	vendors, err := h.repository.ListVendorsWithPagination(ctx, params.Page, params.PageSize)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to convert 'page_size' to an integer")
-		ctx.JSON(400, gin.H{"error": "Invalid 'page_size' value. Must be an integer."})
-		return
-	}
-
-	// Ensure page and pageSize are valid
-	if page < 1 {
-		log.Error().Msg("'page' must be greater than or equal to 1")
-		ctx.JSON(400, gin.H{"error": "'page' must be greater than or equal to 1."})
-		return
-	}
-	if pageSize < 1 {
-		log.Error().Msg("'page_size' must be greater than or equal to 1")
-		ctx.JSON(400, gin.H{"error": "'page_size' must be greater than or equal to 1."})
-		return
-	}
-
-	// Call the repository method with the validated integers
-	vendors, err := h.repository.ListVendorsWithPagination(ctx, page, pageSize)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to list vendors")
+		log.Error().Err(err).Msg("Failed to list vendors with pagination")
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Return the vendors as JSON
-	ctx.JSON(200, vendors)
+
+	totalItems, err := h.repository.CountVendors(ctx)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to count vendors")
+		ctx.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+
+	utils.SendPaginatedResponse(ctx, vendors, params.Page, params.PageSize, totalItems)
 }
