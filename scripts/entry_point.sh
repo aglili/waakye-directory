@@ -21,10 +21,6 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# Debug: Show current directory and contents
-echo "Current directory: $(pwd)"
-echo "Contents of /app:"
-ls -la /app
 
 # Start the application
 echo "Starting the application..."
