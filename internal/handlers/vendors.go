@@ -9,20 +9,19 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-
 const (
 	vendorKeyPrefix = "vendor:"
 )
 
 type VendorHandler struct {
 	repository postgres.VendorRepository
-	cache redis.VendorCacheRepository
+	cache      redis.VendorCacheRepository
 }
 
-func NewVendorHandler(repository postgres.VendorRepository,cache redis.VendorCacheRepository) *VendorHandler {
+func NewVendorHandler(repository postgres.VendorRepository, cache redis.VendorCacheRepository) *VendorHandler {
 	return &VendorHandler{
 		repository: repository,
-		cache: cache,
+		cache:      cache,
 	}
 }
 

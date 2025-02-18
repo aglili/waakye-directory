@@ -15,15 +15,15 @@ type Provider struct {
 	VendorHandler *handlers.VendorHandler
 }
 
-func NewProvider(db *sql.DB,cache *redis.Client) *Provider {
+func NewProvider(db *sql.DB, cache *redis.Client) *Provider {
 	vendorRepository := postgres.NewVendorRepository(db)
 	vendorCacheRepository := cacheRepo.NewVendorCacheRepository(cache)
 
-	vendorHandler := handlers.NewVendorHandler(vendorRepository,vendorCacheRepository)
+	vendorHandler := handlers.NewVendorHandler(vendorRepository, vendorCacheRepository)
 
 	return &Provider{
 		DB:            db,
 		VendorHandler: vendorHandler,
-		Cache: 	   cache,
+		Cache:         cache,
 	}
 }

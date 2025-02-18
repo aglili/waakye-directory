@@ -34,8 +34,6 @@ func InitializeDB(cfg *Config) (*sql.DB, error) {
 	return db, nil
 }
 
-
-
 func InitializeCache(cfg *Config) (*redis.Client, error) {
 	ctx := context.Background()
 	client := redis.NewClient(&redis.Options{
