@@ -29,7 +29,7 @@ func LoadConfig() *Config {
 		DBUser:        GetEnvOrDefault("DB_USER", "postgres"),
 		DBPassword:    GetEnvOrDefault("DB_PASSWORD", ""),
 		DBName:        GetEnvOrDefault("DB_NAME", "postgres"),
-		RedisHost:     GetEnvOrDefault("REDIS_HOST", "localhost"),
+		RedisHost:     GetEnvOrDefault("REDIS_HOST", "redis"),
 		RedisPort:     GetEnvOrDefault("REDIS_PORT", "6379"),
 		RedisPassword: GetEnvOrDefault("REDIS_PASSWORD", ""),
 	}

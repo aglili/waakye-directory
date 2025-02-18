@@ -32,8 +32,14 @@ func main() {
 	}
 	defer db.Close()
 
+	// Initialize cache
+	cache,err := config.InitializeCache(cfg)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to initialize the cache")
+	}
+
 	// Create a new provider
-	prov := provider.NewProvider(db)
+	prov := provider.NewProvider(db,cache)
 
 	// Setup routes
 	router := routes.SetupRoutes(prov)

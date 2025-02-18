@@ -3,17 +3,26 @@ package handlers
 import (
 	"github.com/aglili/waakye-directory/internal/models"
 	"github.com/aglili/waakye-directory/internal/repository/postgres"
+	"github.com/aglili/waakye-directory/internal/repository/redis"
 	"github.com/aglili/waakye-directory/internal/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
+)
+
+
+const (
+	vendorKeyPrefix = "vendor:"
 )
 
 type VendorHandler struct {
 	repository postgres.VendorRepository
+	cache redis.VendorCacheRepository
 }
 
-func NewVendorHandler(repository postgres.VendorRepository) *VendorHandler {
+func NewVendorHandler(repository postgres.VendorRepository,cache redis.VendorCacheRepository) *VendorHandler {
 	return &VendorHandler{
 		repository: repository,
+		cache: cache,
 	}
 }
 
@@ -66,15 +75,35 @@ func (h *VendorHandler) GetVendorByID(ctx *gin.Context) {
 		return
 	}
 
+	cacheKey := vendorKeyPrefix + parsedUUID.String()
+
+	// Check if the vendor exists in the cache
+	if h.cache.ExistsInCache(ctx, cacheKey) {
+		vendor, err := h.cache.GetVendorByID(ctx, parsedUUID)
+		if err != nil {
+			userMessage := "Failed to retrieve vendor"
+			utils.RespondWithInternalServerError(ctx, err.Error(), userMessage)
+			return
+		}
+
+		userMessage := "Vendor retrieved successfully from cache"
+		utils.RespondWithOK(ctx, userMessage, vendor)
+		return
+	}
+
 	vendor, err := h.repository.GetVendorByID(ctx, parsedUUID)
 	if err != nil {
-		userMessage := "Failed to get vendor"
+		userMessage := "Failed to retrieve vendor"
 		utils.RespondWithInternalServerError(ctx, err.Error(), userMessage)
 		return
 	}
 
-	getMessage := "Vendor retrieved successfully"
-	utils.RespondWithOK(ctx, getMessage, vendor)
+	if err := h.cache.SetVendorByID(ctx, parsedUUID, vendor); err != nil {
+		log.Error().Err(err).Msg("Failed to cache vendor")
+	}
+
+	userMessage := "Vendor retrieved successfully"
+	utils.RespondWithOK(ctx, userMessage, vendor)
 }
 
 func (h *VendorHandler) GetNearbyVendors(ctx *gin.Context) {
