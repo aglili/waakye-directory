@@ -99,22 +99,19 @@ func (h *VendorHandler) GetNearbyVendors(ctx *gin.Context) {
 	utils.RespondWithOK(ctx, getMessage, vendors)
 }
 
-
-func (h *VendorHandler) GetVerifiedVendors(ctx *gin.Context)  {
-	params,err := utils.GetPaginationParams(ctx)
+func (h *VendorHandler) GetVerifiedVendors(ctx *gin.Context) {
+	params, err := utils.GetPaginationParams(ctx)
 	if err != nil {
 		userMessage := "Failed to list verified vendors"
 		utils.RespondWithBadRequest(ctx, err.Error(), userMessage)
 		return
 	}
 
-
 	vendors, err := h.repository.GetVerifiedVendors(ctx, params.Page, params.PageSize)
 	if err != nil {
 		userMessage := "Failed to list verified vendors"
 		utils.RespondWithInternalServerError(ctx, err.Error(), userMessage)
 	}
-
 
 	totalItems, err := h.repository.CountVerifiedVendors(ctx)
 	if err != nil {
