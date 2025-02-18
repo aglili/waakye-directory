@@ -98,3 +98,31 @@ func (h *VendorHandler) GetNearbyVendors(ctx *gin.Context) {
 	getMessage := "Nearby vendors retrieved successfully"
 	utils.RespondWithOK(ctx, getMessage, vendors)
 }
+
+
+func (h *VendorHandler) GetVerifiedVendors(ctx *gin.Context)  {
+	params,err := utils.GetPaginationParams(ctx)
+	if err != nil {
+		userMessage := "Failed to list verified vendors"
+		utils.RespondWithBadRequest(ctx, err.Error(), userMessage)
+		return
+	}
+
+
+	vendors, err := h.repository.GetVerifiedVendors(ctx, params.Page, params.PageSize)
+	if err != nil {
+		userMessage := "Failed to list verified vendors"
+		utils.RespondWithInternalServerError(ctx, err.Error(), userMessage)
+	}
+
+
+	totalItems, err := h.repository.CountVerifiedVendors(ctx)
+	if err != nil {
+		userMessage := "Failed to list verified vendors"
+		utils.RespondWithInternalServerError(ctx, err.Error(), userMessage)
+		return
+	}
+
+	getMessage := "Verified vendors retrieved successfully"
+	utils.SendPaginatedResponse(ctx, vendors, params.Page, params.PageSize, totalItems, getMessage)
+}
