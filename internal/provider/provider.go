@@ -14,8 +14,9 @@ type Provider struct {
 
 func NewProvider(db *sql.DB) *Provider {
 	vendorRepository := postgres.NewVendorRepository(db)
+	ratingsRepository := postgres.NewRatingRepository(db)
 
-	vendorHandler := handlers.NewVendorHandler(vendorRepository)
+	vendorHandler := handlers.NewVendorHandler(vendorRepository,ratingsRepository)
 
 	return &Provider{
 		DB:            db,

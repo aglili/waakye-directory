@@ -9,11 +9,13 @@ import (
 
 type VendorHandler struct {
 	repository postgres.VendorRepository
+	ratingsRepository postgres.RatingsRepository
 }
 
-func NewVendorHandler(repository postgres.VendorRepository) *VendorHandler {
+func NewVendorHandler(repository postgres.VendorRepository,ratingsRepository postgres.RatingsRepository) *VendorHandler {
 	return &VendorHandler{
 		repository: repository,
+		ratingsRepository: ratingsRepository,
 	}
 }
 
@@ -122,4 +124,64 @@ func (h *VendorHandler) GetVerifiedVendors(ctx *gin.Context) {
 
 	getMessage := "Verified vendors retrieved successfully"
 	utils.SendPaginatedResponse(ctx, vendors, params.Page, params.PageSize, totalItems, getMessage)
+}
+
+
+
+func (h *VendorHandler) RateVendor(ctx *gin.Context) {
+	parsedUUID, ok := utils.ParseUUID(ctx, "id")
+	if !ok {
+		return
+	}
+
+	var request models.RateVendorRequest
+	request.VendorID = parsedUUID
+	if err := ctx.ShouldBindJSON(&request); err != nil {
+		userMessage := "Failed to rate vendor"
+		utils.RespondWithBadRequest(ctx, err.Error(), userMessage)
+		return
+	}
+
+	// check if vendor exists
+	vendor, err := h.repository.GetVendorByID(ctx, request.VendorID)
+	if err != nil {
+		userMessage := "Failed to rate vendor"
+		utils.RespondWithBadRequest(ctx, err.Error(), userMessage)
+		return
+	}
+
+	if vendor.ID == (models.WaakyeVendor{}).ID {
+		userMessage := "Vendor does not exist"
+		utils.RespondWithNotFound(ctx, userMessage, userMessage)
+		return
+	}
+
+	if err := h.ratingsRepository.RateVendor(ctx, &request); err != nil {
+		userMessage := "Failed to rate vendor"
+		utils.RespondWithInternalServerError(ctx, err.Error(), userMessage)
+		return
+	}
+
+	ratedMessage := "Vendor rated successfully"
+	utils.RespondWithCreated(ctx, ratedMessage, request)
+	
+}
+
+
+
+func (h *VendorHandler) GetVendorRatings(ctx *gin.Context) {
+	parsedUUID, ok := utils.ParseUUID(ctx, "id")
+	if !ok {
+		return
+	}
+
+	ratings, err := h.ratingsRepository.GetVendorRatings(ctx, parsedUUID)
+	if err != nil {
+		userMessage := "Failed to get vendor ratings"
+		utils.RespondWithInternalServerError(ctx, err.Error(), userMessage)
+		return
+	}
+
+	getMessage := "Vendor ratings retrieved successfully"
+	utils.RespondWithOK(ctx, getMessage, ratings)
 }
