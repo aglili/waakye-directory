@@ -18,6 +18,7 @@ type VendorRepository interface {
 	GetNearbyVendors(ctx context.Context, latitude, longitude, radius float64) ([]models.WaakyeVendor, error)
 	GetVerifiedVendors(ctx context.Context, page, pageSize int) ([]models.WaakyeVendor, error)
 	CountVerifiedVendors(ctx context.Context) (int64, error)
+	GetTopRatedVendors(ctx context.Context) ([]models.WaakyeVendor,error)
 }
 
 type vendorRepository struct {
@@ -317,4 +318,62 @@ func (r *vendorRepository) CountVerifiedVendors(ctx context.Context) (int64, err
 	}
 
 	return totalItems, nil
+}
+
+
+func(r *vendorRepository) GetTopRatedVendors(ctx context.Context) ([]models.WaakyeVendor,error){
+	query := `
+		SELECT wv.id, wv.name, wv.description, wv.operating_hours, wv.phone_number, wv.is_verified, wv.created_at, wv.updated_at,
+			l.street_address, l.city, l.region, l.latitude, l.longitude, l.landmark
+		FROM waakye_vendors wv
+		INNER JOIN locations l ON wv.location_id = l.id
+		INNER JOIN vendor_ratings vr ON wv.id = vr.vendor_id
+		GROUP BY wv.id, l.street_address, l.city, l.region, l.latitude, l.longitude, l.landmark
+		ORDER BY AVG((vr.hygiene_rating + vr.value_rating + vr.taste_rating + vr.service_rating) / 4) DESC
+		LIMIT 5
+	`
+
+	rows,err := r.db.QueryContext(ctx,query)
+	if err != nil{
+		log.Error().Err(err).Msg("Failed to list vendors")
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var vendors []models.WaakyeVendor
+
+	for rows.Next(){
+		var vendor models.WaakyeVendor
+		err := rows.Scan(
+			&vendor.ID,
+			&vendor.Name,
+			&vendor.Description,
+			&vendor.OperatingHours,
+			&vendor.PhoneNumber,
+			&vendor.IsVerified,
+			&vendor.CreatedAt,
+			&vendor.UpdatedAt,
+			&vendor.Location.StreetAddress,
+			&vendor.Location.City,
+			&vendor.Location.Region,
+			&vendor.Location.Latitude,
+			&vendor.Location.Longitude,
+			&vendor.Location.Landmark,
+		)
+
+		if err != nil{
+			log.Error().Err(err).Msg("Failed to scan vendor")
+			return nil, err
+		}
+
+		vendors = append(vendors, vendor)
+	}
+
+	if len(vendors) == 0{
+		return []models.WaakyeVendor{},nil
+	}
+
+
+	return vendors,nil
 }

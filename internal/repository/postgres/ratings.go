@@ -89,3 +89,4 @@ func (r *ratingsRepository) GetVendorRatings(ctx context.Context, vendorID uuid.
 
 	return &ratings, nil
 }
+

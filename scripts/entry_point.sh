@@ -24,4 +24,4 @@ fi
 
 # Start the application
 echo "Starting the application..."
-exec ./main  # Changed to use relative path
+exec ./main  

@@ -185,3 +185,21 @@ func (h *VendorHandler) GetVendorRatings(ctx *gin.Context) {
 	getMessage := "Vendor ratings retrieved successfully"
 	utils.RespondWithOK(ctx, getMessage, ratings)
 }
+
+
+
+func (h *VendorHandler) GetTopRatedVendors(ctx *gin.Context){
+
+	vendors, err := h.repository.GetTopRatedVendors(ctx)
+	if err != nil {
+		userMessage := "Failed to get vendor ratings"
+		utils.RespondWithInternalServerError(ctx, err.Error(), userMessage)
+		return
+	}
+
+
+	getMessage := "Top rated vendors retrieved successfully"
+	utils.RespondWithOK(ctx, getMessage, vendors)
+
+}
+
