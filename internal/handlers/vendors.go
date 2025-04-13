@@ -8,13 +8,13 @@ import (
 )
 
 type VendorHandler struct {
-	repository postgres.VendorRepository
+	repository        postgres.VendorRepository
 	ratingsRepository postgres.RatingsRepository
 }
 
-func NewVendorHandler(repository postgres.VendorRepository,ratingsRepository postgres.RatingsRepository) *VendorHandler {
+func NewVendorHandler(repository postgres.VendorRepository, ratingsRepository postgres.RatingsRepository) *VendorHandler {
 	return &VendorHandler{
-		repository: repository,
+		repository:        repository,
 		ratingsRepository: ratingsRepository,
 	}
 }
@@ -126,8 +126,6 @@ func (h *VendorHandler) GetVerifiedVendors(ctx *gin.Context) {
 	utils.SendPaginatedResponse(ctx, vendors, params.Page, params.PageSize, totalItems, getMessage)
 }
 
-
-
 func (h *VendorHandler) RateVendor(ctx *gin.Context) {
 	parsedUUID, ok := utils.ParseUUID(ctx, "id")
 	if !ok {
@@ -164,10 +162,8 @@ func (h *VendorHandler) RateVendor(ctx *gin.Context) {
 
 	ratedMessage := "Vendor rated successfully"
 	utils.RespondWithCreated(ctx, ratedMessage, request)
-	
+
 }
-
-
 
 func (h *VendorHandler) GetVendorRatings(ctx *gin.Context) {
 	parsedUUID, ok := utils.ParseUUID(ctx, "id")
@@ -186,9 +182,7 @@ func (h *VendorHandler) GetVendorRatings(ctx *gin.Context) {
 	utils.RespondWithOK(ctx, getMessage, ratings)
 }
 
-
-
-func (h *VendorHandler) GetTopRatedVendors(ctx *gin.Context){
+func (h *VendorHandler) GetTopRatedVendors(ctx *gin.Context) {
 
 	vendors, err := h.repository.GetTopRatedVendors(ctx)
 	if err != nil {
@@ -197,9 +191,7 @@ func (h *VendorHandler) GetTopRatedVendors(ctx *gin.Context){
 		return
 	}
 
-
 	getMessage := "Top rated vendors retrieved successfully"
 	utils.RespondWithOK(ctx, getMessage, vendors)
 
 }
-

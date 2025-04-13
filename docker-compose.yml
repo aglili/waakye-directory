@@ -16,6 +16,8 @@ services:
         condition: service_healthy
     networks:
       - waakye_network
+    volumes:
+      - ./host-uploads:/app/uploads
 
   postgres:
     image: postgres:15-alpine

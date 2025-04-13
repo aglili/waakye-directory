@@ -18,7 +18,7 @@ type VendorRepository interface {
 	GetNearbyVendors(ctx context.Context, latitude, longitude, radius float64) ([]models.WaakyeVendor, error)
 	GetVerifiedVendors(ctx context.Context, page, pageSize int) ([]models.WaakyeVendor, error)
 	CountVerifiedVendors(ctx context.Context) (int64, error)
-	GetTopRatedVendors(ctx context.Context) ([]models.WaakyeVendor,error)
+	GetTopRatedVendors(ctx context.Context) ([]models.WaakyeVendor, error)
 }
 
 type vendorRepository struct {
@@ -320,8 +320,7 @@ func (r *vendorRepository) CountVerifiedVendors(ctx context.Context) (int64, err
 	return totalItems, nil
 }
 
-
-func(r *vendorRepository) GetTopRatedVendors(ctx context.Context) ([]models.WaakyeVendor,error){
+func (r *vendorRepository) GetTopRatedVendors(ctx context.Context) ([]models.WaakyeVendor, error) {
 	query := `
 		SELECT wv.id, wv.name, wv.description, wv.operating_hours, wv.phone_number, wv.is_verified, wv.created_at, wv.updated_at,
 			l.street_address, l.city, l.region, l.latitude, l.longitude, l.landmark
@@ -333,8 +332,8 @@ func(r *vendorRepository) GetTopRatedVendors(ctx context.Context) ([]models.Waak
 		LIMIT 5
 	`
 
-	rows,err := r.db.QueryContext(ctx,query)
-	if err != nil{
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
 		log.Error().Err(err).Msg("Failed to list vendors")
 		return nil, err
 	}
@@ -343,7 +342,7 @@ func(r *vendorRepository) GetTopRatedVendors(ctx context.Context) ([]models.Waak
 
 	var vendors []models.WaakyeVendor
 
-	for rows.Next(){
+	for rows.Next() {
 		var vendor models.WaakyeVendor
 		err := rows.Scan(
 			&vendor.ID,
@@ -362,7 +361,7 @@ func(r *vendorRepository) GetTopRatedVendors(ctx context.Context) ([]models.Waak
 			&vendor.Location.Landmark,
 		)
 
-		if err != nil{
+		if err != nil {
 			log.Error().Err(err).Msg("Failed to scan vendor")
 			return nil, err
 		}
@@ -370,10 +369,9 @@ func(r *vendorRepository) GetTopRatedVendors(ctx context.Context) ([]models.Waak
 		vendors = append(vendors, vendor)
 	}
 
-	if len(vendors) == 0{
-		return []models.WaakyeVendor{},nil
+	if len(vendors) == 0 {
+		return []models.WaakyeVendor{}, nil
 	}
 
-
-	return vendors,nil
+	return vendors, nil
 }

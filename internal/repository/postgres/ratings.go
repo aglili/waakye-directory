@@ -11,9 +11,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-
-
-
 type RatingsRepository interface {
 	RateVendor(ctx context.Context, request *models.RateVendorRequest) error
 	GetVendorRatings(ctx context.Context, vendorID uuid.UUID) (*models.VendorRatings, error)
@@ -28,9 +25,6 @@ func NewRatingRepository(db *sql.DB) RatingsRepository {
 		db: db,
 	}
 }
-
-
-
 
 func (r *ratingsRepository) RateVendor(ctx context.Context, request *models.RateVendorRequest) error {
 	query := `
@@ -54,7 +48,6 @@ func (r *ratingsRepository) RateVendor(ctx context.Context, request *models.Rate
 
 	return nil
 }
-
 
 func (r *ratingsRepository) GetVendorRatings(ctx context.Context, vendorID uuid.UUID) (*models.VendorRatings, error) {
 	query := `
@@ -89,4 +82,3 @@ func (r *ratingsRepository) GetVendorRatings(ctx context.Context, vendorID uuid.
 
 	return &ratings, nil
 }
-
