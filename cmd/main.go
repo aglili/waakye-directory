@@ -33,7 +33,7 @@ func main() {
 	defer db.Close()
 
 	// Create a new provider
-	prov := provider.NewProvider(db)
+	prov := provider.NewProvider(db, cfg)
 
 	// Setup routes
 	router := routes.SetupRoutes(prov)
