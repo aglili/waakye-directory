@@ -50,7 +50,7 @@ docker-up:
 
 docker-prod:
 	@echo "Starting Production Docker Containers"
-	@$(PROD_COMPOSE) up -d --build
+	@$(PROD_COMPOSE) --env-file production.env up -d --build
 
 
 docker-down:
