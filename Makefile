@@ -2,8 +2,8 @@
 PROJECT_NAME := waakye-directory
 MIGRATION_DIR := migrations
 DB_URL := "postgresql://$(DB_USER):$(DB_PASSWORD)@localhost:5433/$(DB_NAME)?sslmode=disable"
-DOCKER_COMPOSE := docker-compose
-PROD_COMPOSE := docker-compose -f docker-compose.prod.yml
+DOCKER_COMPOSE := docker compose
+PROD_COMPOSE := docker compose -f docker-compose.prod.yml
 
 GO := go
 
