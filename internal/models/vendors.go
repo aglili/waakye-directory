@@ -42,10 +42,10 @@ type WaakyeVendor struct {
 
 type VendorRating struct {
     ID            uuid.UUID
-    HygieneRating int
-    ValueRating   int
-    ServiceRating int
-    TasteRating   int
+    HygieneRating float32
+    ValueRating   float32
+    ServiceRating float32
+    TasteRating   float32
     Comment       string
     CreatedAt     time.Time
 }
