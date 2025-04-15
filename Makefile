@@ -1,7 +1,3 @@
-ENV_FILE ?= .env  # Default to .env if not provided
-include $(ENV_FILE)
-export $(shell sed 's/=.*//' $(ENV_FILE))
-
 # Variables
 PROJECT_NAME := waakye-directory
 MIGRATION_DIR := migrations
