@@ -12,8 +12,8 @@ import (
 )
 
 type RatingsRepository interface {
-	RateVendor(ctx context.Context, request *models.RateVendorRequest) error
-	GetVendorRatings(ctx context.Context, vendorID uuid.UUID) (*models.VendorRatings, error)
+	RateVendor(ctx context.Context,vendorID uuid.UUID ,request *models.RateVendorRequest) error
+	GetVendorGeneralRatings(ctx context.Context, vendorID uuid.UUID) (*models.VendorRatings, error)
 }
 
 type ratingsRepository struct {
@@ -26,7 +26,7 @@ func NewRatingRepository(db *sql.DB) RatingsRepository {
 	}
 }
 
-func (r *ratingsRepository) RateVendor(ctx context.Context, request *models.RateVendorRequest) error {
+func (r *ratingsRepository) RateVendor(ctx context.Context,vendorID uuid.UUID ,request *models.RateVendorRequest) error {
 	query := `
 		INSERT INTO vendor_ratings (vendor_id, hygiene_rating, value_rating, taste_rating, service_rating, comment)
 		VALUES ($1, $2, $3, $4, $5, $6)
@@ -34,7 +34,7 @@ func (r *ratingsRepository) RateVendor(ctx context.Context, request *models.Rate
 	_, err := r.db.ExecContext(
 		ctx,
 		query,
-		request.VendorID,
+		vendorID,
 		request.HygeineRating,
 		request.ValueRating,
 		request.TasteRating,
@@ -49,7 +49,7 @@ func (r *ratingsRepository) RateVendor(ctx context.Context, request *models.Rate
 	return nil
 }
 
-func (r *ratingsRepository) GetVendorRatings(ctx context.Context, vendorID uuid.UUID) (*models.VendorRatings, error) {
+func (r *ratingsRepository) GetVendorGeneralRatings(ctx context.Context, vendorID uuid.UUID) (*models.VendorRatings, error) {
 	query := `
 		SELECT
 			COALESCE(AVG(hygiene_rating), 0) AS hygiene_rating,

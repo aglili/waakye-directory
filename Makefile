@@ -87,6 +87,15 @@ migrate-force:
 # Utility
 .PHONY: help
 
+
+# Swagger
+
+swag:
+	@echo "Generating Swagger documentation..."
+	@swag init -g internal/handlers/* --output docs
+	@echo "Swagger documentation generated at docs/swagger.json"
+
+
 help:
 	@echo "Usage: make [target]"
 	@echo ""
