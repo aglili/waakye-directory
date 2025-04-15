@@ -38,8 +38,8 @@ func (r *vendorRepository) CreateVendor(ctx context.Context, vendor *models.Waak
 			VALUES ($1, $2, $3, $4, $5, $6)
 			RETURNING id
 		)
-		INSERT INTO waakye_vendors (name, location_id, description, operating_hours, phone_number, is_verified)
-		SELECT $7, id, $8, $9, $10, $11
+		INSERT INTO waakye_vendors (name, location_id, description, operating_hours,image_url, phone_number, is_verified)
+		SELECT $7, id, $8, $9, $10, $11,$12
 		FROM location_insert
 		RETURNING id, created_at, updated_at
 	`
@@ -56,6 +56,7 @@ func (r *vendorRepository) CreateVendor(ctx context.Context, vendor *models.Waak
 		vendor.Name,
 		vendor.Description,
 		vendor.OperatingHours,
+		vendor.ImageURL,
 		vendor.PhoneNumber,
 		vendor.IsVerified,
 	).Scan(&vendor.ID, &vendor.CreatedAt, &vendor.UpdatedAt)
@@ -74,7 +75,7 @@ func (r *vendorRepository) CreateVendor(ctx context.Context, vendor *models.Waak
 
 func (r *vendorRepository) ListVendorsWithPagination(ctx context.Context, page, pageSize int) ([]models.WaakyeVendor, error) {
 	query := `
-		SELECT wv.id, wv.name, wv.description, wv.operating_hours, wv.phone_number, wv.is_verified, wv.created_at, wv.updated_at,
+		SELECT wv.id, wv.name, wv.description, wv.operating_hours,wv.image_url, wv.phone_number, wv.is_verified, wv.created_at, wv.updated_at,
 			l.street_address, l.city, l.region, l.latitude, l.longitude, l.landmark
 		FROM waakye_vendors wv
 		INNER JOIN locations l ON wv.location_id = l.id
@@ -99,6 +100,7 @@ func (r *vendorRepository) ListVendorsWithPagination(ctx context.Context, page, 
 			&vendor.Name,
 			&vendor.Description,
 			&vendor.OperatingHours,
+			&vendor.ImageURL,
 			&vendor.PhoneNumber,
 			&vendor.IsVerified,
 			&vendor.CreatedAt,
@@ -142,7 +144,7 @@ func (r *vendorRepository) CountVendors(ctx context.Context) (int64, error) {
 
 func (r *vendorRepository) GetVendorByID(ctx context.Context, id uuid.UUID) (*models.WaakyeVendor, error) {
 	query := `
-		SELECT wv.id, wv.name, wv.description, wv.operating_hours, wv.phone_number, wv.is_verified, wv.created_at, wv.updated_at,
+		SELECT wv.id, wv.name, wv.description, wv.operating_hours,wv.image_url ,wv.phone_number, wv.is_verified, wv.created_at, wv.updated_at,
 			l.street_address, l.city, l.region, l.latitude, l.longitude, l.landmark
 		FROM waakye_vendors wv
 		INNER JOIN locations l ON wv.location_id = l.id
@@ -155,6 +157,7 @@ func (r *vendorRepository) GetVendorByID(ctx context.Context, id uuid.UUID) (*mo
 		&vendor.Name,
 		&vendor.Description,
 		&vendor.OperatingHours,
+		&vendor.ImageURL,
 		&vendor.PhoneNumber,
 		&vendor.IsVerified,
 		&vendor.CreatedAt,
@@ -184,6 +187,7 @@ func (r *vendorRepository) GetNearbyVendors(ctx context.Context, latitude, longi
             wv.name, 
             wv.description, 
             wv.operating_hours, 
+			wv.image_url,
             wv.phone_number, 
             wv.is_verified, 
             wv.created_at, 
@@ -221,6 +225,7 @@ func (r *vendorRepository) GetNearbyVendors(ctx context.Context, latitude, longi
 			&vendor.Name,
 			&vendor.Description,
 			&vendor.OperatingHours,
+			&vendor.ImageURL,
 			&vendor.PhoneNumber,
 			&vendor.IsVerified,
 			&vendor.CreatedAt,
@@ -253,7 +258,7 @@ func (r *vendorRepository) GetNearbyVendors(ctx context.Context, latitude, longi
 
 func (r *vendorRepository) GetVerifiedVendors(ctx context.Context, page, pageSize int) ([]models.WaakyeVendor, error) {
 	query := `
-		SELECT wv.id, wv.name, wv.description, wv.operating_hours, wv.phone_number, wv.is_verified, wv.created_at, wv.updated_at,
+		SELECT wv.id, wv.name, wv.description, wv.operating_hours,wv.image_url ,wv.phone_number, wv.is_verified, wv.created_at, wv.updated_at,
 			l.street_address, l.city, l.region, l.latitude, l.longitude, l.landmark
 		FROM waakye_vendors wv
 		INNER JOIN locations l ON wv.location_id = l.id
@@ -280,6 +285,7 @@ func (r *vendorRepository) GetVerifiedVendors(ctx context.Context, page, pageSiz
 			&vendor.Name,
 			&vendor.Description,
 			&vendor.OperatingHours,
+			&vendor.ImageURL,
 			&vendor.PhoneNumber,
 			&vendor.IsVerified,
 			&vendor.CreatedAt,
@@ -322,7 +328,7 @@ func (r *vendorRepository) CountVerifiedVendors(ctx context.Context) (int64, err
 
 func (r *vendorRepository) GetTopRatedVendors(ctx context.Context) ([]models.WaakyeVendor, error) {
 	query := `
-		SELECT wv.id, wv.name, wv.description, wv.operating_hours, wv.phone_number, wv.is_verified, wv.created_at, wv.updated_at,
+		SELECT wv.id, wv.name, wv.description, wv.operating_hours,wv.image_url ,wv.phone_number, wv.is_verified, wv.created_at, wv.updated_at,
 			l.street_address, l.city, l.region, l.latitude, l.longitude, l.landmark
 		FROM waakye_vendors wv
 		INNER JOIN locations l ON wv.location_id = l.id
@@ -349,6 +355,7 @@ func (r *vendorRepository) GetTopRatedVendors(ctx context.Context) ([]models.Waa
 			&vendor.Name,
 			&vendor.Description,
 			&vendor.OperatingHours,
+			&vendor.ImageURL,
 			&vendor.PhoneNumber,
 			&vendor.IsVerified,
 			&vendor.CreatedAt,

@@ -23,6 +23,7 @@ type WaakyeVendor struct {
 	Location       Location  `json:"location" db:"-"`
 	Description    string    `json:"description" db:"description"`
 	OperatingHours string    `json:"operating_hours" db:"operating_hours"`
+	ImageURL       string    `json:"image_url" db:"image_url"`
 	PhoneNumber    string    `json:"phone_number" db:"phone_number"`
 	IsVerified     bool      `json:"is_verified" db:"is_verified"`
 	CreatedAt      time.Time `json:"created_at" db:"created_at"`

@@ -49,6 +49,7 @@ func (h *VendorHandler) ListVendorsWithPagination(ctx *gin.Context) {
 	if err != nil {
 		userMessage := "Failed to list vendors with pagination"
 		utils.RespondWithInternalServerError(ctx, err.Error(), userMessage)
+		return
 	}
 
 	totalItems, err := h.repository.CountVendors(ctx)
@@ -113,6 +114,7 @@ func (h *VendorHandler) GetVerifiedVendors(ctx *gin.Context) {
 	if err != nil {
 		userMessage := "Failed to list verified vendors"
 		utils.RespondWithInternalServerError(ctx, err.Error(), userMessage)
+		return
 	}
 
 	totalItems, err := h.repository.CountVerifiedVendors(ctx)
