@@ -3,19 +3,29 @@ package routes
 import (
 	"net/http"
 	"path/filepath"
+	"time"
 
-	"github.com/aglili/waakye-directory/internal/provider"
-	"github.com/gin-gonic/gin"
-	"github.com/swaggo/gin-swagger"
-	swaggerfiles "github.com/swaggo/files"
 	_ "github.com/aglili/waakye-directory/docs"
+	"github.com/aglili/waakye-directory/internal/provider"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
-
-
-
 
 func SetupRoutes(provider *provider.Provider) http.Handler {
 	router := gin.Default()
+
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+
+	router.Use(gin.Recovery())
 
 	uploadsDir := filepath.Join(provider.Cfg.FileUploadPath)
 	router.StaticFS("/uploads", http.Dir(uploadsDir))
