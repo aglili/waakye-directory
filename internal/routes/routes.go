@@ -6,13 +6,21 @@ import (
 
 	"github.com/aglili/waakye-directory/internal/provider"
 	"github.com/gin-gonic/gin"
+	"github.com/swaggo/gin-swagger"
+	swaggerfiles "github.com/swaggo/files"
+	_ "github.com/aglili/waakye-directory/docs"
 )
+
+
+
 
 func SetupRoutes(provider *provider.Provider) http.Handler {
 	router := gin.Default()
 
 	uploadsDir := filepath.Join(provider.Cfg.FileUploadPath)
 	router.StaticFS("/uploads", http.Dir(uploadsDir))
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	v1 := router.Group("/api/v1")
 

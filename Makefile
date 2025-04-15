@@ -1,12 +1,14 @@
-# Load environment variables from .env file
-include .env
-export $(shell sed 's/=.*//' .env)
+ENV_FILE ?= .env  # Default to .env if not provided
+include $(ENV_FILE)
+export $(shell sed 's/=.*//' $(ENV_FILE))
 
 # Variables
 PROJECT_NAME := waakye-directory
 MIGRATION_DIR := migrations
 DB_URL := "postgresql://$(DB_USER):$(DB_PASSWORD)@localhost:5433/$(DB_NAME)?sslmode=disable"
 DOCKER_COMPOSE := docker-compose
+PROD_COMPOSE := docker-compose -f docker-compose.prod.yml
+
 GO := go
 
 # Go Tooling
@@ -45,6 +47,12 @@ docker-up:
 	@echo "Starting Docker containers..."
 	@$(DOCKER_COMPOSE) up -d --build
 
+
+docker-prod:
+	@echo "Starting Production Docker Containers"
+	@$(PROD_COMPOSE) up -d --build
+
+
 docker-down:
 	@echo "Stopping Docker containers..."
 	@$(DOCKER_COMPOSE) down
@@ -78,6 +86,15 @@ migrate-force:
 
 # Utility
 .PHONY: help
+
+
+# Swagger
+
+swag:
+	@echo "Generating Swagger documentation..."
+	@swag init -g internal/handlers/* --output docs
+	@echo "Swagger documentation generated at docs/swagger.json"
+
 
 help:
 	@echo "Usage: make [target]"

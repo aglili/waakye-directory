@@ -16,6 +16,15 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// @title Waakye Directory API
+// @version 1.0
+// @description This is a sample server for Waakye Directory.
+// @description Find vendors and their locations and ratings.
+
+// @host localhost:8080
+// @BasePath /api/v1
+// @schemes http
+
 func main() {
 	// Initialize logger
 	logger.Init(config.GetEnvOrDefault("ENV", "development"))

@@ -1,0 +1,403 @@
+definitions:
+  handlers.BadRequestResponse:
+    properties:
+      details:
+        type: string
+      error:
+        type: string
+    type: object
+  handlers.CreateWaakyeVendorSchema:
+    properties:
+      description:
+        type: string
+      image_url:
+        type: string
+      location:
+        $ref: '#/definitions/handlers.LocationSchema'
+      name:
+        type: string
+      operating_hours:
+        type: string
+      phone_number:
+        type: string
+    required:
+    - description
+    - image_url
+    - location
+    - name
+    - operating_hours
+    - phone_number
+    type: object
+  handlers.CreatedResponse:
+    properties:
+      data:
+        additionalProperties: true
+        type: object
+      message:
+        type: string
+    type: object
+  handlers.InternalServerErrorResponse:
+    properties:
+      details:
+        type: string
+      error:
+        type: string
+    type: object
+  handlers.LocationSchema:
+    properties:
+      city:
+        type: string
+      landmark:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      region:
+        type: string
+      street_address:
+        type: string
+    required:
+    - city
+    - landmark
+    - latitude
+    - longitude
+    - region
+    - street_address
+    type: object
+  handlers.NotFoundResponse:
+    properties:
+      details:
+        type: string
+      error:
+        type: string
+    type: object
+  handlers.PaginatedResponse:
+    properties:
+      data:
+        items:
+          additionalProperties: true
+          type: object
+        type: array
+      message:
+        type: string
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total_items:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  handlers.RateVendorRequest:
+    properties:
+      comment:
+        type: string
+      hygeine_rating:
+        type: integer
+      service_rating:
+        maximum: 5
+        minimum: 1
+        type: integer
+      taste_rating:
+        maximum: 5
+        minimum: 1
+        type: integer
+      value_rating:
+        maximum: 5
+        minimum: 1
+        type: integer
+    required:
+    - hygeine_rating
+    - service_rating
+    - taste_rating
+    - value_rating
+    type: object
+  handlers.UploadResponse:
+    properties:
+      file_name:
+        type: string
+      file_size:
+        type: string
+      file_type:
+        type: string
+      file_url:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/uploads:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a file to the server
+      parameters:
+      - description: File to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: File uploaded successfully
+          schema:
+            $ref: '#/definitions/handlers.UploadResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.BadRequestResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.InternalServerErrorResponse'
+      summary: Upload a file
+      tags:
+      - uploads
+  /api/v1/vendors:
+    get:
+      consumes:
+      - application/json
+      description: List all vendors with pagination
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Vendors retrieved successfully
+          schema:
+            $ref: '#/definitions/handlers.PaginatedResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.BadRequestResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.InternalServerErrorResponse'
+      summary: List vendors with pagination
+      tags:
+      - vendors
+    post:
+      consumes:
+      - application/json
+      description: Create a new waakye vendor
+      parameters:
+      - description: Vendor object
+        in: body
+        name: vendor
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateWaakyeVendorSchema'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Vendor created successfully
+          schema:
+            $ref: '#/definitions/handlers.CreatedResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.BadRequestResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.InternalServerErrorResponse'
+      summary: Create a new vendor
+      tags:
+      - vendors
+  /api/v1/vendors/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a vendor by ID
+      parameters:
+      - description: Vendor ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Vendor retrieved successfully
+          schema:
+            $ref: '#/definitions/handlers.CreatedResponse'
+        "400":
+          description: Invalid UUID format
+          schema:
+            $ref: '#/definitions/handlers.BadRequestResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.InternalServerErrorResponse'
+      summary: Get vendor by ID
+      tags:
+      - vendors
+  /api/v1/vendors/{id}/rate:
+    post:
+      consumes:
+      - application/json
+      description: Rate a vendor by ID
+      parameters:
+      - description: Vendor ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Rating object
+        in: body
+        name: rating
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.RateVendorRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Vendor rated successfully
+          schema:
+            $ref: '#/definitions/handlers.CreatedResponse'
+        "400":
+          description: Invalid UUID format
+          schema:
+            $ref: '#/definitions/handlers.BadRequestResponse'
+        "404":
+          description: Vendor not found
+          schema:
+            $ref: '#/definitions/handlers.NotFoundResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.InternalServerErrorResponse'
+      summary: Rate a vendor
+      tags:
+      - vendors
+  /api/v1/vendors/{id}/ratings:
+    get:
+      consumes:
+      - application/json
+      description: Get ratings for a vendor by ID
+      parameters:
+      - description: Vendor ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Vendor ratings retrieved successfully
+          schema:
+            $ref: '#/definitions/handlers.CreatedResponse'
+        "400":
+          description: Invalid UUID format
+          schema:
+            $ref: '#/definitions/handlers.BadRequestResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.InternalServerErrorResponse'
+      summary: Get vendor ratings
+      tags:
+      - vendors
+  /api/v1/vendors/nearby:
+    get:
+      consumes:
+      - application/json
+      description: Get nearby vendors based on latitude and longitude
+      parameters:
+      - description: Latitude
+        in: query
+        name: lat
+        required: true
+        type: number
+      - description: Longitude
+        in: query
+        name: lng
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Nearby vendors retrieved successfully
+          schema:
+            $ref: '#/definitions/handlers.CreatedResponse'
+        "400":
+          description: Invalid latitude or longitude
+          schema:
+            $ref: '#/definitions/handlers.BadRequestResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.InternalServerErrorResponse'
+      summary: Get nearby vendors
+      tags:
+      - vendors
+  /api/v1/vendors/top_rated:
+    get:
+      consumes:
+      - application/json
+      description: Get all top rated vendors
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Top rated vendors retrieved successfully
+          schema:
+            $ref: '#/definitions/handlers.CreatedResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.InternalServerErrorResponse'
+      summary: Get top rated vendors
+      tags:
+      - vendors
+  /api/v1/vendors/verified:
+    get:
+      consumes:
+      - application/json
+      description: Get all verified vendors
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Verified vendors retrieved successfully
+          schema:
+            $ref: '#/definitions/handlers.PaginatedResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.BadRequestResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.InternalServerErrorResponse'
+      summary: Get verified vendors
+      tags:
+      - vendors
+swagger: "2.0"

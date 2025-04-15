@@ -1,9 +1,7 @@
 package models
 
-import "github.com/google/uuid"
 
 type RateVendorRequest struct {
-	VendorID      uuid.UUID `json:"vendor_id" db:"vendor_id"`
 	HygeineRating int       `json:"hygeine_rating" validate:"required,gte=1,lte=5" db:"hygeine_rating"`
 	ValueRating   int       `json:"value_rating" validate:"required,gte=1,lte=5" db:"value_rating"`
 	TasteRating   int       `json:"taste_rating" validate:"required,gte=1,lte=5" db:"taste_rating"`
