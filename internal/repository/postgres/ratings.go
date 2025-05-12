@@ -50,7 +50,7 @@ func (r *ratingsRepository) RateVendor(ctx context.Context,vendorID uuid.UUID ,r
 }
 
 func (r *ratingsRepository) GetVendorGeneralRatings(ctx context.Context, vendorID uuid.UUID) (*models.VendorRatings, error) {
-	query := `
+	ratingsQuery := `
 		SELECT
 			COALESCE(AVG(hygiene_rating), 0) AS hygiene_rating,
 			COALESCE(AVG(value_rating), 0) AS value_rating,
@@ -63,7 +63,7 @@ func (r *ratingsRepository) GetVendorGeneralRatings(ctx context.Context, vendorI
 	`
 
 	var ratings models.VendorRatings
-	err := r.db.QueryRowContext(ctx, query, vendorID).Scan(
+	err := r.db.QueryRowContext(ctx, ratingsQuery, vendorID).Scan(
 		&ratings.HygieneRating,
 		&ratings.ValueRating,
 		&ratings.TasteRating,
@@ -78,6 +78,39 @@ func (r *ratingsRepository) GetVendorGeneralRatings(ctx context.Context, vendorI
 		}
 		log.Error().Err(err).Msg("Failed to get vendor ratings")
 		return nil, fmt.Errorf("failed to get vendor ratings: %w", err)
+	}
+
+	commentsQuery := `
+		SELECT comment, created_at
+		FROM vendor_ratings
+		WHERE vendor_id = $1 AND comment != ''
+		ORDER BY created_at DESC
+	`
+
+	rows, err := r.db.QueryContext(ctx, commentsQuery, vendorID)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to get vendor comments")
+		return nil, fmt.Errorf("failed to get vendor comments: %w", err)
+	}
+	defer rows.Close()
+
+	// Initialize empty comments slice
+	ratings.Comments = []models.VendorComment{}
+
+	// Iterate through the result rows
+	for rows.Next() {
+		var comment models.VendorComment
+		if err := rows.Scan(&comment.Comment, &comment.CreatedAt); err != nil {
+			log.Error().Err(err).Msg("Failed to scan vendor comment")
+			return nil, fmt.Errorf("failed to scan vendor comment: %w", err)
+		}
+		ratings.Comments = append(ratings.Comments, comment)
+	}
+
+	// Check for errors from iterating over rows
+	if err := rows.Err(); err != nil {
+		log.Error().Err(err).Msg("Error iterating over vendor comments")
+		return nil, fmt.Errorf("error iterating over vendor comments: %w", err)
 	}
 
 	return &ratings, nil
