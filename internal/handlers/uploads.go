@@ -51,18 +51,20 @@ func (h *UploadHandler) UploadFile(ctx *gin.Context) {
 
 	file, header, err := ctx.Request.FormFile("file")
 	if err != nil {
+		// Check if it's a file size error
 		if strings.Contains(err.Error(), "body size limit exceeded") {
-			utils.RespondWithBadRequest(ctx, "File too large", "Maximum file size is 10MB")
+			utils.RespondWithBadRequest(ctx,"File too large", "Maximum file size is 10MB")
 			return
 		}
 
-		utils.RespondWithBadRequest(ctx, err.Error(), "Failed to get uploaded file")
+		utils.RespondWithBadRequest(ctx, "File too large", "Failed to upload file")
 		return
 	}
 	defer file.Close()
 
+	// Double check file size from header
 	if header.Size > maxSize {
-		utils.RespondWithBadRequest(ctx, "File too large", "Maximum file size is 10MB")
+		utils.RespondWithBadRequest(ctx,"File too large", "Maximum file size is 10MB")
 		return
 	}
 
@@ -73,13 +75,13 @@ func (h *UploadHandler) UploadFile(ctx *gin.Context) {
 
 	dst, err := os.Create(fullPath)
 	if err != nil {
-		utils.RespondWithInternalServerError(ctx, err.Error(), "Failed to create file")
+		utils.RespondWithInternalServerError(ctx, err.Error(), "Failed to upload file")
 		return
 	}
 	defer dst.Close()
 
 	if err = ctx.SaveUploadedFile(header, fullPath); err != nil {
-		utils.RespondWithInternalServerError(ctx, err.Error(), "Failed to save uploaded file")
+		utils.RespondWithInternalServerError(ctx, err.Error(), "Failed to upload file")
 		os.Remove(fullPath)
 		return
 	}
@@ -87,7 +89,7 @@ func (h *UploadHandler) UploadFile(ctx *gin.Context) {
 	fileURL := fmt.Sprintf("/uploads/%s", uniqueName)
 
 	response := map[string]string{
-		"file_url":  fileURL, // Removed ctx.Request.Host to avoid incorrect URLs
+		"file_url":  fmt.Sprintf("%s%s", ctx.Request.Host, fileURL),
 		"file_name": originalFileName,
 		"file_size": fmt.Sprintf("%d", header.Size),
 		"file_type": header.Header.Get("Content-Type"),
